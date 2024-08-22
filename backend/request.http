@@ -1,0 +1,95 @@
+### Check for user account creation
+POST http://localhost:8000/user/create-account
+Content-Type: application/json
+
+{
+    "email": "pratik@gmail.com",
+    "password": "pratik2408s",
+    "firstName": "Pratik",
+    "lastName": "Sharma"
+}
+
+
+### Check for login user p@gmail.com
+POST http://localhost:8000/user/login
+Content-Type: application/json
+
+{
+     "email": "p@gmail.com",
+    "password": "$2a$10$CeEEWVKbxKUU13XrlzqIvOdx1FSmgnHprhrHwjTuskR5b/8dJCJTG"
+}
+
+### Check for login user p@gmail.com
+POST http://localhost:8000/user/login
+Content-Type: application/json
+
+{
+     "email": "ps11@gmail.com",
+    "password": "$2a$10$CeEEWVKbxKUU13XrlzqIvOyBKohSgJiEqHJCJmnw98LqN0pnHbtOS"
+}
+
+### Create the expense
+POST http://localhost:8000/expense/create-expense
+Content-Type: application/json
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyIjp7InVzZXIiOnsiX2lkIjoiNjZiZWYxNjA2NDJlZGUzYjYwZDY0MmE3IiwiZmlyc3ROYW1lIjoiUHJhdGlrIiwibGFzdE5hbWUiOiJTaGFybWEiLCJlbWFpbCI6InBAZ21haWwuY29tIiwicGFzc3dvcmQiOiIkMmEkMTAkQ2VFRVdWS2J4S1VVMTNYcmx6cUl2T2R4MUZTbWduSHByaHJId2pUdXNrUjViLzhkSkNKVEciLCJjcmVhdGVkT24iOiIyMDI0LTA4LTE2VDA2OjI3OjQ0LjYyNVoiLCJfX3YiOjB9fSwiaWF0IjoxNzI0MDM2MTM2LCJleHAiOjE3MjQwMzk3MzZ9._o0G7cAzLNF11lcT6JZHq531vUH9gUlFmyDelp4TpQk
+
+{
+    "title": "Lodging",
+    "amount": 100,
+    "description": "stay in picnic",
+    "category": "FoOd",
+    "date": "2024-08-19",
+    "type": "debit"
+}
+
+### Get expense by user
+GET http://localhost:8000/expense?page=1&limit=2
+Content-Type: application/json
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyIjp7InVzZXIiOnsiX2lkIjoiNjZiZWYxNjA2NDJlZGUzYjYwZDY0MmE3IiwiZmlyc3ROYW1lIjoiUHJhdGlrIiwibGFzdE5hbWUiOiJTaGFybWEiLCJlbWFpbCI6InBAZ21haWwuY29tIiwicGFzc3dvcmQiOiIkMmEkMTAkQ2VFRVdWS2J4S1VVMTNYcmx6cUl2T2R4MUZTbWduSHByaHJId2pUdXNrUjViLzhkSkNKVEciLCJjcmVhdGVkT24iOiIyMDI0LTA4LTE2VDA2OjI3OjQ0LjYyNVoiLCJfX3YiOjB9fSwiaWF0IjoxNzIzODU1Njc5LCJleHAiOjE3MjM4NTkyNzl9.ZmuUrZp3e5Pzl8clM1umhp0302oWuLYK3o5csCWj2KE
+
+
+### Get summary of expense
+GET http://localhost:8000/expense/getSummary?type=weekly
+Content-Type: application/json
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyIjp7InVzZXIiOnsiX2lkIjoiNjZiZWYxNjA2NDJlZGUzYjYwZDY0MmE3IiwiZmlyc3ROYW1lIjoiUHJhdGlrIiwibGFzdE5hbWUiOiJTaGFybWEiLCJlbWFpbCI6InBAZ21haWwuY29tIiwicGFzc3dvcmQiOiIkMmEkMTAkQ2VFRVdWS2J4S1VVMTNYcmx6cUl2T2R4MUZTbWduSHByaHJId2pUdXNrUjViLzhkSkNKVEciLCJjcmVhdGVkT24iOiIyMDI0LTA4LTE2VDA2OjI3OjQ0LjYyNVoiLCJfX3YiOjB9fSwiaWF0IjoxNzI0MDMwMzUzLCJleHAiOjE3MjQwMzM5NTN9.SrKHhcK9JZhEnXzwlwUz23OFLiOHZtZWSUDqrH-l_9M
+
+
+### Search expense by date, category, query
+GET http://localhost:8000/expense?date=2024-08-19
+Content-Type: application/json
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyIjp7InVzZXIiOnsiX2lkIjoiNjZiZWYxNjA2NDJlZGUzYjYwZDY0MmE3IiwiZmlyc3ROYW1lIjoiUHJhdGlrIiwibGFzdE5hbWUiOiJTaGFybWEiLCJlbWFpbCI6InBAZ21haWwuY29tIiwicGFzc3dvcmQiOiIkMmEkMTAkQ2VFRVdWS2J4S1VVMTNYcmx6cUl2T2R4MUZTbWduSHByaHJId2pUdXNrUjViLzhkSkNKVEciLCJjcmVhdGVkT24iOiIyMDI0LTA4LTE2VDA2OjI3OjQ0LjYyNVoiLCJfX3YiOjB9fSwiaWF0IjoxNzI0MDMzOTY4LCJleHAiOjE3MjQwMzc1Njh9.1fSKRo188BwQNL8R5i6Sl_zZCCKIhgrdNomE4NUcJUA
+
+
+### Create category
+POST http://localhost:8000/category/create-category
+Content-Type: application/json
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyIjp7InVzZXIiOnsiX2lkIjoiNjZiZWYxNjA2NDJlZGUzYjYwZDY0MmE3IiwiZmlyc3ROYW1lIjoiUHJhdGlrIiwibGFzdE5hbWUiOiJTaGFybWEiLCJlbWFpbCI6InBAZ21haWwuY29tIiwicGFzc3dvcmQiOiIkMmEkMTAkQ2VFRVdWS2J4S1VVMTNYcmx6cUl2T2R4MUZTbWduSHByaHJId2pUdXNrUjViLzhkSkNKVEciLCJjcmVhdGVkT24iOiIyMDI0LTA4LTE2VDA2OjI3OjQ0LjYyNVoiLCJfX3YiOjB9fSwiaWF0IjoxNzI0MDM1MDA4LCJleHAiOjE3MjQwMzg2MDh9.owjHhd7Ls3c9FEwedRmW8oTJnd5JpGkiTqT8qLqcTGY
+
+{
+    "name": "shopping",
+    "description": "shopping related expenses",
+    "type": "expense"
+}
+
+
+### Get all categories
+GET http://localhost:8000/category
+Content-Type: application/json
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyIjp7InVzZXIiOnsiX2lkIjoiNjZiZmRhMjc0MjZkZmY4NGFmNGFjOGUyIiwiZmlyc3ROYW1lIjoiUHJhdGlrIiwibGFzdE5hbWUiOiJTaGFybWEiLCJlbWFpbCI6InBzMTFAZ21haWwuY29tIiwicGFzc3dvcmQiOiIkMmEkMTAkQ2VFRVdWS2J4S1VVMTNYcmx6cUl2T3lCS29oU2dKaUVxSEpDSm1udzk4THFOMHBuSGJ0T1MiLCJjcmVhdGVkT24iOiIyMDI0LTA4LTE2VDIzOjAwOjU1LjI1OFoiLCJfX3YiOjB9fSwiaWF0IjoxNzI0MDM0ODY4LCJleHAiOjE3MjQwMzg0Njh9.iU0S6V3F-qHZArIcy7MfcdcRPmD7s4dfCs9pYWjKDwc
+
+
+### Update category
+PUT http://localhost:8000/category/66c2af9738836eabbf656b27
+Content-Type: application/json
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyIjp7InVzZXIiOnsiX2lkIjoiNjZiZmRhMjc0MjZkZmY4NGFmNGFjOGUyIiwiZmlyc3ROYW1lIjoiUHJhdGlrIiwibGFzdE5hbWUiOiJTaGFybWEiLCJlbWFpbCI6InBzMTFAZ21haWwuY29tIiwicGFzc3dvcmQiOiIkMmEkMTAkQ2VFRVdWS2J4S1VVMTNYcmx6cUl2T3lCS29oU2dKaUVxSEpDSm1udzk4THFOMHBuSGJ0T1MiLCJjcmVhdGVkT24iOiIyMDI0LTA4LTE2VDIzOjAwOjU1LjI1OFoiLCJfX3YiOjB9fSwiaWF0IjoxNzI0MDM0ODY4LCJleHAiOjE3MjQwMzg0Njh9.iU0S6V3F-qHZArIcy7MfcdcRPmD7s4dfCs9pYWjKDwc
+
+{
+    "name": "Food",
+    "description": "Food related expenses spent on vacation",
+    "type": "income"
+}
+
+### Delete category
+DELETE http://localhost:8000/category/66c2af9738836eabbf656b27
+Content-Type: application/json
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyIjp7InVzZXIiOnsiX2lkIjoiNjZiZmRhMjc0MjZkZmY4NGFmNGFjOGUyIiwiZmlyc3ROYW1lIjoiUHJhdGlrIiwibGFzdE5hbWUiOiJTaGFybWEiLCJlbWFpbCI6InBzMTFAZ21haWwuY29tIiwicGFzc3dvcmQiOiIkMmEkMTAkQ2VFRVdWS2J4S1VVMTNYcmx6cUl2T3lCS29oU2dKaUVxSEpDSm1udzk4THFOMHBuSGJ0T1MiLCJjcmVhdGVkT24iOiIyMDI0LTA4LTE2VDIzOjAwOjU1LjI1OFoiLCJfX3YiOjB9fSwiaWF0IjoxNzI0MDM0ODY4LCJleHAiOjE3MjQwMzg0Njh9.iU0S6V3F-qHZArIcy7MfcdcRPmD7s4dfCs9pYWjKDwc
