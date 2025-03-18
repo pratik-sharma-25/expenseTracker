@@ -1,27 +1,19 @@
-const { default: mongoose } = require('mongoose');
+const { default: mongoose, get } = require('mongoose');
 const Expense = require('../models/expense.model'); // Assuming the Expense model is in the models directory
 const { START_OF_THE_APPLICATION, VALID_SUMMARY_TYPES} = require('../utils/constants');
 const createLog = require('./LoggerController');
 const { checkForValidDate, getUserFromRequest } = require('../helper');
-const Category = require('../models/category.model');
 
 // Create a new expense
 const createExpense = async (req, res) => {
 
   try {
-    const { title, description, amount, date, category, type } = req.body;
+    const { title, description, amount, date, type } = req.body;
 
     // check if the categories exist
-    if (!title || !amount || !date || !category || !type) {
-        createLog("Fields missing", "error", {title, amount, date, category, type});
+    if (!title || !amount || !date || !type) {
+        createLog("Fields missing", "error", {title, amount, date, type});
         return res.status(400).json({ message: 'All fields are required' });
-    }
-
-    // check if categories are preexisting
-    const userCategory = await Category.findOne({ name: category.toLowerCase(), user: getUserFromRequest(req) });
-    if (!userCategory) {
-        createLog("Category does not exist", "error", {category});
-        return res.status(400).json({ message: 'Category does not exist'});
     }
 
     // check if amount is a number and not less than 0
@@ -55,7 +47,6 @@ const createExpense = async (req, res) => {
       type,
       amount,
       date,
-      category: userCategory.name,
       user: getUserFromRequest(req)
     });
     await newExpense.save()
@@ -69,7 +60,7 @@ const createExpense = async (req, res) => {
 
 // Get all expenses
 const getExpenses = async (req, res) => {
-  const { page = 1, limit = 10, search = "", category = "", date = "" } = req.query;  
+  const { page = 1, limit = 10, search = "", date = "" } = req.query;  
   
   let userId = getUserFromRequest(req);
 
@@ -106,15 +97,6 @@ const getExpenses = async (req, res) => {
     }
   }
 
-  // implement search by category
-  if (category) {
-    // check if categories are pre existing
-    searchQuery = {
-      ...searchQuery,
-      category: {$regex: category.toLowerCase(), $options: 'i'}
-    }
-  }
-
   try {
     const expenses = await Expense.find( searchQuery, { __v: 0 }, { limit: parseInt(limit), skip: (parseInt(page) - 1) * parseInt });
     const expenseCount = await Expense.countDocuments(searchQuery);
@@ -142,10 +124,10 @@ const getExpenseById = async (req, res) => {
 // Update an expense by ID
 const updateExpense = async (req, res) => {
   try {
-    const { title, description, amount, date, category, type } = req.body;
+    const { title, description, amount, date, type } = req.body;
     const updatedExpense = await Expense.findByIdAndUpdate(
       req.params.id,
-      { description, amount, date, category, title, type},
+      { description, amount, date, title, type},
       { new: true }
     );
     if (!updatedExpense) {
@@ -185,13 +167,11 @@ const getSummary = async (req, res) => {
 
     // get current year
     const currentYear = new Date().getFullYear();
+    const userId = getUserFromRequest(req);
 
     // conver string to mongoose object Id
     let matchQuery = {
-        user: req?.user?.user?.user?._id ? new mongoose.Types.ObjectId(req?.user?.user?.user?._id ) : "",
-        date: {
-          $gte: new Date(`${currentYear}-01-01`), // start of the year
-        }
+        user: new mongoose.Types.ObjectId(userId)
     };
 
     let groupQuery = {

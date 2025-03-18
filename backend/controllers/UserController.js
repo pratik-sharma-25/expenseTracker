@@ -1,6 +1,7 @@
 const UserModel = require("../models/user.model");
 const jwt = require("jsonwebtoken");
 const createLog = require("./LoggerController");
+const bcrypt = require('bcrypt');
 
 const loginUser = async (req, res) => {
   const { email, password } = req.body;
@@ -19,15 +20,21 @@ const loginUser = async (req, res) => {
     return res.status(404).json({ message: "User does not exist" });
   }
 
-  if (userData.password !== password) {
+  // check user password matches with bcrypt
+  const isPaswordMatch = await bcrypt.compare(password, userData.password);
+
+  if (!isPaswordMatch) {
     createLog("Password incorrect", "error", {email});
     return res.status(400).json({ message: "Password is incorrect" });
   }
 
-  const user = { user: userData };
+  userData.password = undefined;
+  const user = userData
   const accessToken = jwt.sign({ user }, process.env.ACCESS_TOKEN_SECRET, {
     expiresIn: "1h",
   });
+
+   // don't send password in response
   return res.json({
     accessToken,
     message: "user logged in",
@@ -51,25 +58,33 @@ const createUser = async (req, res) => {
   }
 
   try {
-    const userData = new UserModel({
+    const salt = await bcrypt.genSalt(10);
+    const hashedPassword = await bcrypt.hash(password, salt);
+
+    const userInformation = {
       firstName,
       lastName,
       email,
-      password, // Ensure to hash the password before saving in a real application
-    });
+      password: hashedPassword,
+    }
+    const userData = new UserModel(userInformation);
 
-    const user = { user: userData };
+    const user = userData;
     const accessToken = jwt.sign({ user }, process.env.ACCESS_TOKEN_SECRET, {
       expiresIn: "1h",
     });
 
     await userData.save();
+
+    delete userInformation.password; // don't send password in response
+
     res.status(201).json({
       message: "User created successfully",
       accessToken,
       error: false,
-      user,
+      user: userInformation,
     });
+
   } catch (error) {
     createLog('Error in user creation', "fatal", {message: error.message});
     return res.status(500).json({ message: error.message });

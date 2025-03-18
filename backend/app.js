@@ -6,7 +6,7 @@ require('dotenv').config()
 const app = express();
 
 const mongoose = require("mongoose");
-mongoose.connect("mongodb://localhost:27017/expenseTracker");
+mongoose.connect("mongodb://localhost:27017/userUpdateA");
 
 app.use(cors());
 app.use(express.json());

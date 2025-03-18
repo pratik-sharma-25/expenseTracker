@@ -24,11 +24,9 @@ const checkForValidDate = (date) => {
 
 const getUserFromRequest = (req) => {
     let userId = null
-    if (req?.user?.user?._id ){
+    if (req?.user?._id){
         const {
-            user : {
-                _id
-            }
+            _id
         } = req?.user || {};
         userId = _id
     }

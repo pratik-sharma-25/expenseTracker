@@ -2,11 +2,11 @@ const express = require('express');
 const router = express.Router();
 const ExpenseController = require('../controllers/ExpenseController');
 
-// Route to get the summary of the expenses
-router.get('/getSummary', ExpenseController.getSummary);
-
 // Route to create a new expense
 router.post('/create-expense', ExpenseController.createExpense);
+
+// Route to get the summary of the expenses
+router.get('/getSummary', ExpenseController.getSummary);
 
 // Route to get all expenses
 router.get('/', ExpenseController.getExpenses);
