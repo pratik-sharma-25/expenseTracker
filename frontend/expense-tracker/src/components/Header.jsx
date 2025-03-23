@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import { getUserInitials } from "../utils/helper";
 
 const Header = () => {
@@ -18,7 +18,7 @@ const Header = () => {
 
     const userData = localStorage.getItem("user");
     if (userData) {
-      const { user: userInfo } = JSON.parse(userData);
+      const userInfo = JSON.parse(userData);
       setUser(userInfo);
     }
   }, []);

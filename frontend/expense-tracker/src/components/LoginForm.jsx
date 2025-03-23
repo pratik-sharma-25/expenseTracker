@@ -1,7 +1,6 @@
-import React, { useState } from "react";
+import { useState } from "react";
 import { Link } from "react-router-dom";
 import axiosInstance from "../utils/axiosInstance";
-import { hashPassword } from "../utils/helper";
 
 const LoginForm = () => {
   const [email, setEmail] = useState("");
@@ -17,10 +16,9 @@ const LoginForm = () => {
     }
 
     try{
-        const refinedPassword = await hashPassword(password);
         const response = await axiosInstance.post('/user/login', {
             email,
-            password: refinedPassword, // double encoding to prevent direct password exposure
+            password, // double encoding to prevent direct password exposure
         });
         // check for user logged in and set the token in local storage
         if (response.status === 200) {
@@ -66,7 +64,7 @@ const LoginForm = () => {
             Login
           </button>
             <p className="mt-5">
-                Don't have an account?{" "}
+                {"Don't have an account?"}
                 <Link to="/signup" className="text-blue-500">
                 Sign Up
                 </Link>

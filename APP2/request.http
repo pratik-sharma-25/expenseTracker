@@ -1,0 +1,29 @@
+@hostname = http://localhost
+@port = 8002
+@host = {{ hostname }}:{{ port }}
+@contentType = application/json
+
+
+### Check for login user for fetching token
+# @name login
+POST {{hostname}}:8001/user/login
+Content-Type: {{ contentType }}
+
+{
+    "email": "pratik26Mar@gmail.com",
+    "password": "pratik2408s"
+}
+
+###
+@authToken = {{ login.response.body.accessToken }}
+
+
+### Get expense by user
+GET {{host}}/expense?page=1&limit=10
+Content-Type: {{ contentType }}
+Authorization: Bearer {{ authToken }}
+
+### Get the expense by id
+GET {{host}}/expense/7cebe672-7e7c-4f37-9230-a57e5db145e5
+Content-Type: {{ contentType }}
+Authorization: Bearer {{ authToken }}

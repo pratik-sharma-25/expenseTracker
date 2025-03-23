@@ -1,5 +1,4 @@
-import React, { useState } from "react";
-import { hashPassword } from "../utils/helper";
+import { useState } from "react";
 import axiosInstance from "../utils/axiosInstance";
 
 const SignupForm = () => {
@@ -9,7 +8,6 @@ const SignupForm = () => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [errorState, setErrorState] = useState({})
-  const errorMessage = 'Please enter value';
 
   const handleSubmit = async (event) => {
     event.preventDefault();
@@ -33,7 +31,6 @@ const SignupForm = () => {
     if (password.length < 6) {
         currentErrorState.password = 'Password must be at least 6 characters';
     }
-    debugger;
     if (Object.keys(currentErrorState).length) {
         setErrorState(currentErrorState);
         return;
@@ -42,12 +39,11 @@ const SignupForm = () => {
     setErrorState({});
 
     try{
-        const refinedPassword = await hashPassword(password);
         const response = await axiosInstance.post('/user/create-account', {
             firstName: firstname,
             lastName: lastname,
             email,
-            password: refinedPassword, // double encoding to prevent direct password exposure
+            password // double encoding to prevent direct password exposure
         });
 
         // check for user logged in and set the token in local storage
@@ -56,7 +52,6 @@ const SignupForm = () => {
             localStorage.setItem('user', JSON.stringify(response.data.user));
             window.location.href = '/transaction';
         }
-
         
     } catch (error) {
         console.log('Error:', error);
@@ -91,7 +86,6 @@ const SignupForm = () => {
           type="email"
           value={email}
           onChange={(e) => setEmail(e.target.value)}
-          novalidate
           className={`shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline ${errorState?.email && !email ? 'border-red-500' : ''}`}
         />
         {errorState?.email && <p className="text-red-500 text-xs italic mt-2">{errorState?.email}</p>}

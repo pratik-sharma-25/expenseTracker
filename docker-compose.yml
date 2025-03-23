@@ -1,0 +1,54 @@
+version: '3.8'
+
+services:
+  app1:
+    build:
+      context: ./APP1
+    ports:
+      - "8001:8001"
+    environment:
+      - MONGO_URI=mongodb://mongo1:27017/mainAppdb
+      - QUEUE_URI=redis://redis-server:6379
+      - PORT=8001
+    depends_on:
+      - mongo1
+      - redis-server
+
+  app2:
+    build:
+      context: ./APP2
+    ports:
+      - "8002:8002"
+    environment:
+      - MONGO_URI=mongodb://mongo2:27017/secondaryAppdb
+      - QUEUE_URI=redis://redis:6379
+      - PORT=8002
+    depends_on:
+      - mongo2
+      - redis-server
+
+  mongo1:
+    image: mongo:6
+    container_name: mongo1
+    ports:
+      - "27019:27017"
+    volumes:
+      - mongo1_data:/data/db
+
+  mongo2:
+    image: mongo:6
+    container_name: mongo2
+    ports:
+      - "27018:27017"
+    volumes:
+      - mongo2_data:/data/db
+
+  redis-server:
+    image: redis:7
+    container_name: redis
+    ports:
+      - "6379:6379"
+
+volumes:
+  mongo1_data:
+  mongo2_data:

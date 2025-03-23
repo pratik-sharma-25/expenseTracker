@@ -1,8 +1,10 @@
-const { default: mongoose, get } = require('mongoose');
+const { default: mongoose } = require('mongoose');
 const Expense = require('../models/expense.model'); // Assuming the Expense model is in the models directory
-const { START_OF_THE_APPLICATION, VALID_SUMMARY_TYPES} = require('../utils/constants');
+const { START_OF_THE_APPLICATION, VALID_SUMMARY_TYPES, DELETE_EXPENSE_CHANNEL, CREATE_EXPENSE_CHANNEL, UPDATE_EXPENSE_CHANNEL} = require('../utils/constants');
 const createLog = require('./LoggerController');
 const { checkForValidDate, getUserFromRequest } = require('../helper');
+const { publish } = require('../pubsub');
+const { v4: uuidv4 } = require('uuid');
 
 // Create a new expense
 const createExpense = async (req, res) => {
@@ -41,17 +43,24 @@ const createExpense = async (req, res) => {
         return res.status(400).json({ message: 'Date cannot be set to future' });
     }
 
-    const newExpense = new Expense({
-      title,
-      description,
-      type,
-      amount,
-      date,
-      user: getUserFromRequest(req)
-    });
-    await newExpense.save()
+    const userId = getUserFromRequest(req)
+
+    const expenseId = uuidv4();
+
+    const userExpense = {
+        expenseId, 
+        title,
+        description,
+        amount,
+        date,
+        type,
+        user : userId
+    }
+
+    publish(CREATE_EXPENSE_CHANNEL, JSON.stringify(userExpense));
+
     const response = { message: 'Expense created successfully' }
-    res.status(201).json(response);
+    return res.status(201).json(response);
   } catch (error) {
     createLog("Error in expense creation", "fatal", { message: error.message });
     res.status(500).json({ message: error.message });
@@ -64,8 +73,13 @@ const getExpenses = async (req, res) => {
   
   let userId = getUserFromRequest(req);
 
+  if (!userId) {
+    return res.status(400).json({ message: 'User not found' });
+  }
+
   let searchQuery = {
-    user: userId || ""
+    user: userId ,
+    isDeleted: false
   }
 
   if (search) {
@@ -98,7 +112,7 @@ const getExpenses = async (req, res) => {
   }
 
   try {
-    const expenses = await Expense.find( searchQuery, { __v: 0 }, { limit: parseInt(limit), skip: (parseInt(page) - 1) * parseInt });
+    const expenses = await Expense.find( searchQuery, { __v: 0 }, { limit: parseInt(limit), skip: (parseInt(page) - 1) * limit });
     const expenseCount = await Expense.countDocuments(searchQuery);
     res.status(200).json({expenses, expenseCount});
   } catch (error) {
@@ -110,7 +124,9 @@ const getExpenses = async (req, res) => {
 // Get a single expense by ID
 const getExpenseById = async (req, res) => {
   try {
-    const expense = await Expense.findById(req.params.id);
+    const expense = await Expense.findOne({
+      expenseId: req.params.id
+    });
     if (!expense) {
       return res.status(404).json({ message: 'Expense not found' });
     }
@@ -125,30 +141,52 @@ const getExpenseById = async (req, res) => {
 const updateExpense = async (req, res) => {
   try {
     const { title, description, amount, date, type } = req.body;
-    const updatedExpense = await Expense.findByIdAndUpdate(
-      req.params.id,
-      { description, amount, date, title, type},
-      { new: true }
-    );
+    const updateInfo = {
+      expenseId: req.params.id,
+      title,
+      description,
+      amount,
+      date,
+      type,
+      userId: getUserFromRequest(req)
+    }
+
+    const updatedExpense = await Expense.find({
+      expenseId: req.params.id
+    });
+
     if (!updatedExpense) {
        createLog("Error not fount", "error", {  });
       return res.status(404).json({ message: 'Expense not found' });
     }
-    res.status(200).json({ message: 'Expense updated successfully', expense: updatedExpense });
+    publish(UPDATE_EXPENSE_CHANNEL, JSON.stringify(updateInfo));
+
+    return res.status(200).json({ message: 'Expense updated successfully' });
   } catch (error) {
     createLog("Error in expense updation", "fatal", { message: error.message });
-    res.status(500).json({ message: 'Error updating expense', error });
+    return res.status(500).json({ message: 'Error updating expense', error });
   }
 };
 
 // Delete an expense by ID
 const deleteExpense = async (req, res) => {
   try {
-    const deletedExpense = await Expense.findByIdAndDelete(req.params.id);
+
+    const userInfo = {
+      userId: getUserFromRequest(req),
+      expenseId: req.params.id
+    }
+
+    const deletedExpense = await Expense.find({
+      expenseId: req.params.id
+    });
     if (!deletedExpense) {
       return res.status(404).json({ message: 'Expense not found' });
     }
-    res.status(200).json({ message: 'Expense deleted successfully' });
+
+    publish(DELETE_EXPENSE_CHANNEL, JSON.stringify(userInfo));
+
+    return res.status(200).json({ message: 'Expense will be deleted shortly' });
   } catch (error) {
     createLog("Error in expense deletion", "fatal", { message: error.message });
     res.status(500).json({ message: 'Error deleting expense', error });

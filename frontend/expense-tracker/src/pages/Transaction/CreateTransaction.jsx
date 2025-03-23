@@ -1,16 +1,17 @@
-import React, { useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import Header from "../../components/Header";
 import Sidebar from "../../components/Sidebar";
 import axiosInstance from "../../utils/axiosInstance";
+import { useNavigate } from "react-router-dom";
+import PropTypes from "prop-types";
 
-const CreateTransaction = ({showData}) => {
+const CreateTransaction = ({showData, isUpdate}) => {
   const [description, setDescription] = useState("");
   const [title, setTitle] = useState("");
   const [amount, setAmount] = useState("");
   const [date, setDate] = useState("");
-  const [category, setCategory] = useState("");
   const [expenseType, setExpenseType] = useState("");
-  const [attachment, setAttachment] = useState(null);
+  const navigateTo = useNavigate();
 
   const urlParams = new URLSearchParams(window.location.search);
   const id = urlParams.get('id'); 
@@ -28,7 +29,6 @@ const CreateTransaction = ({showData}) => {
         setTitle(transaction.title);
         setAmount(transaction.amount);
         setDate(userEnteredDate);
-        setCategory(transaction.category);
         setExpenseType(transaction.type);
       }
     };
@@ -36,13 +36,6 @@ const CreateTransaction = ({showData}) => {
     fetchTransactions();
   }, []);
 
-  const categories = [
-    "Food",
-    "Transport",
-    "Utilities",
-    "Entertainment",
-    "Other",
-  ];
   const type = [
     {
       value: "credit",
@@ -62,15 +55,16 @@ const CreateTransaction = ({showData}) => {
         description,
         amount,
         date,
-        category,
-        type: expenseType,
-        attachment
+        type: expenseType
+        
     }
     if (!id) {
         await axiosInstance.post('/expense/create-expense', params);
     } else {
         await axiosInstance.put('/expense/' + id, params);
     }
+
+    navigateTo('/transaction');
   };
 
   const currentDate = new Date().toISOString().split("T")[0];
@@ -80,7 +74,7 @@ const CreateTransaction = ({showData}) => {
       <div className="flex">
         <Sidebar />
         <div className="flex-1 p-4">
-          <h1 className="text-2xl font-bold mb-4">Create Transaction</h1>
+          <h1 className="text-2xl font-bold mb-4">{isUpdate ? "Update" : "Create"} Transaction</h1>
           <form
             onSubmit={handleSubmit}
             className="bg-white p-4 rounded shadow-md"
@@ -179,50 +173,11 @@ const CreateTransaction = ({showData}) => {
                 ))}
               </select>
             </div>
-            <div className="mb-4">
-              <label
-                className="block text-gray-700 text-sm font-bold mb-2"
-                htmlFor="category"
-              >
-                Category
-              </label>
-              <select
-                id="category"
-                value={category}
-                onChange={(e) => setCategory(e.target.value)}
-                className="border p-2 rounded w-full"
-                required
-                disabled={showData}
-              >
-                <option value="" disabled>
-                  Select a category
-                </option>
-                {categories.map((cat) => (
-                  <option key={cat} value={cat}>
-                    {cat}
-                  </option>
-                ))}
-              </select>
-            </div>
-            <div className="mb-4">
-              <label
-                className="block text-gray-700 text-sm font-bold mb-2"
-                htmlFor="attachment"
-              >
-                Attachment
-              </label>
-              <input
-                type="file"
-                id="attachment"
-                onChange={(e) => setAttachment(e.target.files[0])}
-                className="border p-2 rounded w-full"
-              />
-            </div>
             {!showData && <button
               type="submit"
               className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded"
             >
-              Create Transaction
+              {isUpdate ? "Update" : "Create"} Transaction
             </button>
             }
           </form>
@@ -230,6 +185,11 @@ const CreateTransaction = ({showData}) => {
       </div>
     </div>
   );
+};
+
+CreateTransaction.propTypes = {
+  showData: PropTypes.bool,
+  isUpdate: PropTypes.bool
 };
 
 export default CreateTransaction;

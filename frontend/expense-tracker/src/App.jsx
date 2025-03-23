@@ -1,11 +1,9 @@
-import React from 'react'
 import Home from './pages/Home/Home'
 import { BrowserRouter as Router, Routes, Route, Outlet, Navigate } from 'react-router-dom'
 import Login from './pages/Login/Login'
 import Signup from './pages/Signup/Signup'
 import Transaction from './pages/Transaction/Transaction'
 import CreateTransaction from './pages/Transaction/CreateTransaction'
-import Summary from './pages/Transaction/Summary'
 
 const AppRoutes = () => {
   return (
@@ -15,8 +13,7 @@ const AppRoutes = () => {
             <Route path="/" element={<Home />} exact />
             <Route path="/transaction" element={<Transaction />} exact />
             <Route path="/transaction/create" element={<CreateTransaction />} exact />
-            <Route path="/transaction/summary" element={<Summary />} exact />
-            <Route path="/transaction/edit" element={<CreateTransaction />} exact />
+            <Route path="/transaction/edit" element={<CreateTransaction isUpdate={true}/>} exact />
             <Route path="/transaction/view" element={<CreateTransaction showData={true} />} exact />
         </Route>
         <Route element={<LoginRoutes />} >

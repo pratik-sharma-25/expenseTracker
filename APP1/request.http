@@ -1,0 +1,73 @@
+@hostname = http://localhost
+@port = 8001
+@host = {{ hostname }}:{{ port }}
+@contentType = application/json
+
+
+### Check for user account creation
+POST {{host}}/user/create-account
+Content-Type: {{ contentType }}
+
+{
+    "email": "pratik26Mar@gmail.com",
+    "password": "pratik2408s",
+    "firstName": "Pratik",
+    "lastName": "Sharma"
+}
+
+
+### Check for login user for fetching token
+# @name login
+POST {{host}}/user/login
+Content-Type: {{ contentType }}
+
+{
+    "email": "pratik26Mar@gmail.com",
+    "password": "pratik2408s"
+}
+
+###
+@authToken = {{ login.response.body.accessToken }}
+
+### Create the expense
+POST {{host}}/expense/create-expense
+Content-Type: {{ contentType }}
+Authorization: Bearer {{ authToken }}
+
+{
+    "title": "Traveling Docker 26th Mar",
+    "amount": 100,
+    "description": "stay in docker picnic2",
+    "date": "2024-08-19",
+    "type": "debit"
+}
+
+### Get expense by user
+GET {{host}}/expense?page=1&limit=10
+Content-Type: {{ contentType }}
+Authorization: Bearer {{ authToken }}
+
+### Get the expense by id
+GET {{host}}/expense/7cebe672-7e7c-4f37-9230-a57e5db145e5
+Content-Type: {{ contentType }}
+Authorization: Bearer {{ authToken }}
+
+
+### Delete the expense by id
+DELETE {{host}}/expense/7cebe672-7e7c-4f37-9230-a57e5db145e5
+Content-Type: {{ contentType }}
+Authorization: Bearer {{ authToken }}
+
+
+### Update the expense by id
+PUT {{host}}/expense/7cebe672-7e7c-4f37-9230-a57e5db145e5
+Content-Type: {{ contentType }}
+Authorization: Bearer {{ authToken }}
+
+{
+    "title": "TravelingToHoste Prtik 25th Mar",
+    "amount": 100,
+    "description": "stay in picnics",
+    "date": "2024-08-19",
+    "type": "debit"
+}

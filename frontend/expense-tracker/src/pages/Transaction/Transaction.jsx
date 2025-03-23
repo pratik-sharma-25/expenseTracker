@@ -1,8 +1,8 @@
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import { FaEdit, FaEye, FaTrash } from 'react-icons/fa';
 import Header from '../../components/Header';
 import Sidebar from '../../components/Sidebar';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import axiosInstance from '../../utils/axiosInstance';
 
 const Transaction = () => {
@@ -11,19 +11,28 @@ const Transaction = () => {
     const [transactions, setTransactions] = useState([]);
     const [totalDocuments, setTotalDocuments] = useState(0);
     const [currentPage, setCurrentPage] = useState(1);
+    const navigateTo = useNavigate();
 
     const fetchTransactions = async (search) => {
+      try {
         const response = await axiosInstance.get('/expense', {
-            params: {
-            limit: 5,
-            page: currentPage,
-            search
-            },
-        });
-        const transactionData = response.data.expenses;
-        const totalDocs = response.data.expenseCount;
-        setTransactions(transactionData);
-        setTotalDocuments(totalDocs);
+          params: {
+          limit: 5,
+          page: currentPage,
+          search
+          },
+      });
+      const transactionData = response.data.expenses;
+      const totalDocs = response.data.expenseCount;
+      setTransactions(transactionData);
+      setTotalDocuments(totalDocs);
+      }  catch (error) {
+        // logout the user if no activity
+        if (error.response.status === 403) {
+          localStorage.clear();
+          navigateTo('/');
+        }
+      }
     }
 
     const deleteTransaction = async (id) => {
@@ -37,13 +46,6 @@ const Transaction = () => {
 
   const [searchInput, setSearchInput] = useState('');
   const transactionsPerPage = 5;
-
-  const updateTransaction = (id) => {
-    const updatedTransactions = transactions.map((transaction) =>
-      transaction.id === id ? { ...transaction, description: 'Updated Transaction' } : transaction
-    );
-    setTransactions(updatedTransactions);
-  };
 
   const handleSearchChange = (e) => {
     setSearchInput(e.target.value);
@@ -102,21 +104,21 @@ const Transaction = () => {
             </thead>
             <tbody>
               {transactions.map((transaction) => (
-                <tr key={transaction._id}>
+                <tr key={transaction.expenseId}>
                   <td className="py-2 px-4 border-b">{transaction.title}</td>
                   <td className="py-2 px-4 border-b">{transaction.description}</td>
-                  <td className="py-2 px-4 border-b">${transaction.amount}</td>
+                  <td className="py-2 px-4 border-b"> &#8377; {transaction.amount}</td>
                   <td className="py-2 px-4 border-b">{transaction.type == "credit" ? "Income" : "Expense"}</td>
                   <td className="py-2 px-4 border-b flex space-x-2">
-                    <Link to={`/transaction/edit?id=${transaction._id}`} ><button className="text-blue-500 hover:text-blue-700">
+                    <Link to={`/transaction/edit?id=${transaction.expenseId}`} ><button className="text-blue-500 hover:text-blue-700">
                       <FaEdit />
                     </button>
                     </Link>
-                    <Link to={`/transaction/view?id=${transaction._id}`} ><button className="text-blue-500 hover:text-blue-700">
+                    <Link to={`/transaction/view?id=${transaction.expenseId}`} ><button className="text-blue-500 hover:text-blue-700">
                       <FaEye />
                     </button>
                     </Link>
-                    <button onClick={() => deleteTransaction(transaction._id)} className="text-red-500 hover:text-red-700">
+                    <button onClick={() => deleteTransaction(transaction.expenseId)} className="text-red-500 hover:text-red-700">
                       <FaTrash />
                     </button>
                   </td>

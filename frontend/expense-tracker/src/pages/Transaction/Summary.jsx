@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
 import Header from '../../components/Header';
 import Sidebar from '../../components/Sidebar';
 import { Bar } from 'react-chartjs-2';
@@ -52,7 +52,6 @@ const Summary = () => {
           return transactionDate.getFullYear() === now.getFullYear();
         });
 
-        console.log(filtered, 'filtered');
       } else if (timePeriod === 'monthly') {
         filtered = fetchedTransactions.filter((transaction) => {
           const transactionDate = new Date(transaction.date);
